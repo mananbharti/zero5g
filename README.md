@@ -42,7 +42,7 @@ It is one Node process with no build step. Any host that runs `npm start` works 
 
 ```bash
 npm install          # only needed for the browser tests (puppeteer-core)
-npm test             # 39 unit + server tests, no dependencies
+npm test             # 29 unit + server tests, no dependencies
 npm run test:browser # 11 end-to-end checks in headless Chrome (set CHROME_PATH if needed)
 npm run test:all
 npm run screenshots  # regenerate docs/ images
