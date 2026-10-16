@@ -1,0 +1,19 @@
+{
+  "name": "zero5g",
+  "version": "1.0.0",
+  "description": "Speed test suite plus a 5G reality checker: does your 5G actually perform like 5G?",
+  "license": "MIT",
+  "type": "module",
+  "main": "server.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/unit.test.js test/server.test.js",
+    "test:browser": "node test/browser.test.js",
+    "test:all": "npm test && npm run test:browser",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}
