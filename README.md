@@ -8,6 +8,8 @@ Built for Tech Utsav.
 
 The design is deliberately not a dark neon dashboard: warm paper, ink, one signal red, Instrument Serif for numbers, IBM Plex Mono for data, hairline rules and square edges. Fonts are bundled (SIL OFL), nothing loads from a CDN.
 
+**Live:** https://zero5g.onrender.com (Render free plan: sleeps after ~15 min idle, first load can take ~50 s)
+
 ## Features
 
 - **Full speed suite:** download, upload, ping, jitter, and ping under load (bufferbloat).
@@ -49,6 +51,7 @@ npm install          # only needed for the browser tests (puppeteer-core)
 npm test             # 31 unit + server tests, no dependencies
 npm run test:browser # 12 end-to-end checks in headless Chrome (set CHROME_PATH if needed)
 npm run test:all
+BASE_URL=https://zero5g.onrender.com npm run test:browser   # same checks against a live deploy
 npm run screenshots  # regenerate docs/ images
 ```
 

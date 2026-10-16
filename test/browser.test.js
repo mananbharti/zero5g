@@ -7,9 +7,11 @@ import { createServer } from '../server.js';
 const CHROME = process.env.CHROME_PATH || ['/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser'].find((p) => fs.existsSync(p));
 if (!CHROME) { console.error('No Chrome found. Set CHROME_PATH.'); process.exit(2); }
 
-const server = createServer();
-await new Promise((r) => server.listen(0, '127.0.0.1', r));
-const base = 'http://127.0.0.1:' + server.address().port;
+// BASE_URL=https://your-host runs the same checks against a deployed instance.
+const REMOTE = process.env.BASE_URL ? process.env.BASE_URL.replace(/\/$/, '') : null;
+const server = REMOTE ? null : createServer();
+if (server) await new Promise((r) => server.listen(0, '127.0.0.1', r));
+const base = REMOTE || 'http://127.0.0.1:' + server.address().port;
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--no-sandbox', '--disable-gpu'] });
 
 let passed = 0;
@@ -79,14 +81,14 @@ await t('full quick run on a fast link: real 5G verdict, tiles, history, no erro
   assert.equal(await page.$eval('#start', (e) => e.disabled), true, 'start disabled while testing');
   assert.equal(await page.$eval('body', (b) => b.classList.contains('testing')), true);
   await waitDone(page);
-  assert.equal(await text(page, '#vBadge'), 'REAL 5G');
-  assert.match(await text(page, '#vHead'), /Real 5G/);
+  if (REMOTE) assert.match(await text(page, '#vBadge'), /^(REAL 5G|PARTIAL|FAKE 5G)$/); // real internet: any verdict is valid
+  else { assert.equal(await text(page, '#vBadge'), 'REAL 5G'); assert.match(await text(page, '#vHead'), /Real 5G/); }
   const down = await text(page, '#vDown'); const up = await text(page, '#vUp');
   assert.match(down, /\d.*(Mbps|Gbps)/); assert.match(up, /\d.*(Mbps|Gbps)/);
   assert.match(await text(page, '#vPing'), /ms$/);
   assert.match(await text(page, '#vJitter'), /ms$/);
   assert.match(await text(page, '#vLoaded'), /ms$/);
-  assert.ok(Number(await text(page, '#sNum')) >= 80);
+  if (!REMOTE) assert.ok(Number(await text(page, '#sNum')) >= 80);
   assert.equal(await page.$$eval('.bar-row', (r) => r.length), 4);
   assert.equal(await page.$eval('#start', (e) => e.disabled), false, 'start re-enabled');
   assert.equal(await page.$$eval('#historyList li', (l) => l.length), 1);
@@ -210,6 +212,6 @@ await t('no accessibility basics missing: lang, labels, live region, radio roles
 });
 
 await browser.close();
-server.closeAllConnections(); server.close();
+if (server) { server.closeAllConnections(); server.close(); }
 console.log(results.join('\n'));
 console.log(`\n${passed}/${results.length} browser checks passed`);
