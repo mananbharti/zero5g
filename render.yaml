@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: zero5g
+    runtime: node
+    plan: free
+    buildCommand: echo "no build step"
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: ZERO5G_SERVER_LABEL
+        value: Render

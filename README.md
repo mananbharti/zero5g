@@ -40,7 +40,7 @@ Add `?quick=1` to the URL for the 8 second quick test.
 
 ### Deploy
 
-It is one Node process with no build step. Any host that runs `npm start` works (Render, Railway, Fly, a VPS). Host it close to the people testing: the test measures the path to the server, so a far-away host lowers speed and raises ping.
+`render.yaml` is included (Render free plan, no build step). It is one Node process with no build step. Any host that runs `npm start` works (Render, Railway, Fly, a VPS). Host it close to the people testing: the test measures the path to the server, so a far-away host lowers speed and raises ping.
 
 ## Tests
 
