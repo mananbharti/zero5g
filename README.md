@@ -6,6 +6,8 @@ Built for Tech Utsav.
 
 ![Zero5G fake 5G result](docs/verdict-fake-top.png)
 
+The design is deliberately not a dark neon dashboard: warm paper, ink, one signal red, Instrument Serif for numbers, IBM Plex Mono for data, hairline rules and square edges. Fonts are bundled (SIL OFL), nothing loads from a CDN.
+
 ## Features
 
 - **Full speed suite:** download, upload, ping, jitter, and ping under load (bufferbloat).
@@ -18,6 +20,8 @@ Built for Tech Utsav.
 | Real 5G | Fake 5G (mobile) |
 |---|---|
 | ![real](docs/verdict-real.png) | ![mobile](docs/mobile-verdict-fake-top.png) |
+
+Older look, for comparison: `docs/before/`.
 
 ## Run it
 
@@ -42,8 +46,8 @@ It is one Node process with no build step. Any host that runs `npm start` works 
 
 ```bash
 npm install          # only needed for the browser tests (puppeteer-core)
-npm test             # 29 unit + server tests, no dependencies
-npm run test:browser # 11 end-to-end checks in headless Chrome (set CHROME_PATH if needed)
+npm test             # 31 unit + server tests, no dependencies
+npm run test:browser # 12 end-to-end checks in headless Chrome (set CHROME_PATH if needed)
 npm run test:all
 npm run screenshots  # regenerate docs/ images
 ```

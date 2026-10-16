@@ -89,7 +89,7 @@ export function judge(m, claim = 'unsure') {
     const pct = Math.round((m.down / TARGETS.down) * 100);
     reasons.push(
       m.down >= TARGETS.down
-        ? `Download ${pct}% of the ${TARGETS.down} Mbps 5G reference.`
+        ? pct >= 300 ? `Download is more than ${Math.floor(pct / 100)}x the ${TARGETS.down} Mbps 5G reference.` : `Download is ${pct}% of the ${TARGETS.down} Mbps 5G reference.`
         : `Download is only ${pct}% of the ${TARGETS.down} Mbps 5G reference.`
     );
   }
@@ -103,7 +103,7 @@ export function judge(m, claim = 'unsure') {
     if (reachedReal) {
       verdict = 'real';
       headline = 'Real 5G. It performs like it says.';
-      detail = `Your phone says ${c.label} and the numbers back it up: ${tier.label.toLowerCase()} speed with usable latency.`;
+      detail = `Your phone says ${c.label} and the numbers back it up: ${tier.label} speed with usable latency.`;
     } else if (tier.id === 'weak5g') {
       verdict = 'partial';
       headline = '5G in name, 4G-plus in practice.';

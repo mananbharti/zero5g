@@ -4,35 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Zero5G - Is your 5G actually 5G?</title>
-  <meta name="description" content="Speed test plus a 5G reality checker. Find out if the 5G icon on your phone is real or just a label.">
-  <meta name="theme-color" content="#070b12">
+  <meta name="description" content="A speed test that calls out fake 5G. Measure what your phone really gets and see if the icon is telling the truth.">
+  <meta name="theme-color" content="#ece6d8">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/style.css">
   <script type="module" src="/js/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#test">Skip to the test</a>
   <header class="top">
-    <a class="brand" href="/" aria-label="Zero5G home">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="/favicon.svg#mark"/></svg>
-      <span class="brand-name">Zero<b>5G</b></span>
-    </a>
+    <a class="brand" href="/" aria-label="Zero5G home"><span class="brand-zero">Zero</span><span class="brand-5g">5G</span></a>
     <nav class="nav" aria-label="Sections">
       <a href="#test">Test</a>
       <a href="#history">History</a>
-      <a href="#how">How it works</a>
+      <a href="#how">Method</a>
     </nav>
   </header>
 
   <main>
     <section class="hero" id="test">
       <div class="hero-copy">
-        <p class="eyebrow">5G reality checker</p>
-        <h1>Is your 5G <span class="grad">actually 5G?</span></h1>
-        <p class="lede">The icon says 5G. Your reels say otherwise. Run a 20 second test and get a straight verdict: real 5G, 5G in name only, or fake.</p>
+        <p class="eyebrow">Field test no. <span id="runNo">1</span></p>
+        <h1>Your phone says 5G.<br><em>Does it?</em></h1>
+        <p class="lede">Twenty seconds, one server, no guessing. Zero5G measures what you actually get and tells you if the icon is honest.</p>
 
         <fieldset class="claim" id="claim">
-          <legend>My phone shows</legend>
+          <legend><span class="step">1</span> What does the status bar say?</legend>
           <div class="chips" role="radiogroup" aria-label="What your phone shows in the status bar">
             <button type="button" class="chip" role="radio" aria-checked="true" data-claim="5g">5G</button>
             <button type="button" class="chip" role="radio" aria-checked="false" data-claim="5g-plus">5G+ / UW</button>
@@ -42,106 +40,96 @@
           </div>
         </fieldset>
 
+        <p class="step-line"><span class="step">2</span> Run it.</p>
         <div class="actions">
           <button type="button" class="btn primary" id="start">Start test</button>
           <button type="button" class="btn ghost hidden" id="stop">Stop</button>
-          <label class="toggle"><input type="checkbox" id="quick"> <span>Quick test (8 s)</span></label>
+          <label class="toggle"><input type="checkbox" id="quick"> <span>Quick (8 s)</span></label>
         </div>
-        <p class="hint" id="hint">Turn off Wi-Fi first if you want to test mobile data.</p>
+        <p class="hint" id="hint">Switch Wi-Fi off first if you want to judge mobile data.</p>
       </div>
 
-      <div class="gauge-card" aria-live="off">
-        <div class="gauge-wrap">
-          <svg class="gauge" viewBox="0 0 240 240" role="img" aria-label="Live speed gauge">
-            <defs>
-              <linearGradient id="g-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#2cff9a"/><stop offset="1" stop-color="#29c6ff"/>
-              </linearGradient>
-            </defs>
-            <circle class="g-track" cx="120" cy="120" r="100"/>
-            <circle class="g-fill" id="gFill" stroke-dashoffset="628.32" cx="120" cy="120" r="100"/>
-          </svg>
-          <div class="gauge-center">
-            <div class="g-phase" id="gPhase">Ready</div>
-            <div class="g-value" id="gValue">0</div>
-            <div class="g-unit" id="gUnit">Mbps</div>
+      <div class="readout" aria-live="off">
+        <div class="ro-head"><span class="ro-phase" id="gPhase">Ready</span><span class="ro-tag">Readout</span></div>
+        <div class="ro-num"><span class="ro-value" id="gValue">0</span><span class="ro-unit" id="gUnit">Mbps</span></div>
+        <div class="ruler" aria-hidden="true">
+          <div class="ruler-fill" id="gFill"></div>
+          <div class="ruler-ticks">
+            <span class="t0">0</span><span class="t10">10</span><span class="t100">100</span><span class="t1000">1000</span>
           </div>
+          <div class="ruler-mark" title="5G reference: 100 Mbps"></div>
         </div>
+        <p class="ruler-note">Mbps, log scale. Marker at 100: the 5G reference.</p>
         <div class="progress" aria-hidden="true"><div class="progress-bar" id="pBar"></div></div>
         <div class="status" id="status" role="status" aria-live="polite">Press start to measure ping, download and upload.</div>
       </div>
     </section>
 
-    <section class="tiles" aria-label="Results">
-      <div class="tile" data-k="down"><span class="t-label">Download</span><span class="t-val" id="vDown">-</span><span class="t-sub">target 100+ Mbps</span></div>
-      <div class="tile" data-k="up"><span class="t-label">Upload</span><span class="t-val" id="vUp">-</span><span class="t-sub">target 20+ Mbps</span></div>
-      <div class="tile" data-k="ping"><span class="t-label">Ping</span><span class="t-val" id="vPing">-</span><span class="t-sub">target 30 ms or less</span></div>
-      <div class="tile" data-k="jitter"><span class="t-label">Jitter</span><span class="t-val" id="vJitter">-</span><span class="t-sub">target 15 ms or less</span></div>
-      <div class="tile" data-k="loaded"><span class="t-label">Ping under load</span><span class="t-val" id="vLoaded">-</span><span class="t-sub">while downloading</span></div>
+    <section class="sheet" aria-label="Results">
+      <div class="cell tile" data-k="down"><span class="t-label">Download</span><span class="t-val" id="vDown">-</span><span class="t-sub">5G should be 100+ Mbps</span></div>
+      <div class="cell tile" data-k="up"><span class="t-label">Upload</span><span class="t-val" id="vUp">-</span><span class="t-sub">aim for 20+ Mbps</span></div>
+      <div class="cell tile" data-k="ping"><span class="t-label">Ping</span><span class="t-val" id="vPing">-</span><span class="t-sub">30 ms or less</span></div>
+      <div class="cell tile" data-k="jitter"><span class="t-label">Jitter</span><span class="t-val" id="vJitter">-</span><span class="t-sub">15 ms or less</span></div>
+      <div class="cell tile" data-k="loaded"><span class="t-label">Ping under load</span><span class="t-val" id="vLoaded">-</span><span class="t-sub">measured while downloading</span></div>
     </section>
 
-    <section class="card chart-card" aria-label="Live throughput chart">
-      <div class="card-head"><h2>Throughput</h2><span class="muted" id="chartLabel">Waiting for a test</span></div>
+    <section class="plot" aria-label="Live throughput chart">
+      <div class="sec-head"><h2>Throughput</h2><span class="muted" id="chartLabel">Waiting for a test</span></div>
       <canvas id="chart" height="180" role="img" aria-label="Throughput over time"></canvas>
     </section>
 
-    <section class="card verdict hidden" id="verdict" aria-live="polite" tabindex="-1">
-      <div class="v-top">
-        <div class="v-score" aria-label="Zero5G score">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="s-track" cx="60" cy="60" r="52"/>
-            <circle class="s-fill" id="sFill" stroke-dashoffset="326.73" cx="60" cy="60" r="52"/>
-          </svg>
-          <div class="v-score-num"><span id="sNum">0</span><small>/100</small></div>
-        </div>
-        <div class="v-main">
-          <span class="badge" id="vBadge">REAL</span>
-          <h2 id="vHead"></h2>
-          <p id="vDetail"></p>
-        </div>
+    <section class="verdict hidden" id="verdict" aria-live="polite" tabindex="-1">
+      <div class="v-left">
+        <span class="badge" id="vBadge">REAL</span>
+        <h2 id="vHead"></h2>
+        <p id="vDetail"></p>
       </div>
-      <ul class="reasons" id="vReasons"></ul>
+      <div class="v-right">
+        <div class="v-score" aria-label="Zero5G score"><span class="v-num" id="sNum">0</span><span class="v-of">/100</span></div>
+        <div class="meter" aria-hidden="true"><div class="meter-fill" id="sFill"></div></div>
+        <ul class="reasons" id="vReasons"></ul>
+      </div>
       <div class="bars" id="vBars"></div>
-      <div class="actions">
+      <div class="actions v-actions">
         <button type="button" class="btn primary" id="again">Test again</button>
-        <button type="button" class="btn ghost" id="share">Share result image</button>
+        <button type="button" class="btn ghost" id="share">Save result image</button>
         <button type="button" class="btn ghost" id="copy">Copy summary</button>
       </div>
-      <p class="hint" id="shareNote" role="status"></p>
+      <p class="hint v-note" id="shareNote" role="status"></p>
     </section>
 
-    <section class="card" id="conn">
-      <div class="card-head"><h2>What your browser reports</h2></div>
+    <section class="block" id="conn">
+      <div class="sec-head"><h2>What your browser claims</h2></div>
       <dl class="conn" id="connList"></dl>
       <p class="muted small" id="connNote"></p>
     </section>
 
-    <section class="card" id="history">
-      <div class="card-head"><h2>History</h2><button type="button" class="link" id="clearHistory">Clear</button></div>
-      <div id="historyEmpty" class="muted">No tests yet. Your results stay on this device.</div>
+    <section class="block" id="history">
+      <div class="sec-head"><h2>Logbook</h2><button type="button" class="link" id="clearHistory">Clear</button></div>
+      <div id="historyEmpty" class="muted">Nothing logged yet. Results stay on this device.</div>
       <ul class="hist" id="historyList"></ul>
     </section>
 
-    <section class="card how" id="how">
-      <div class="card-head"><h2>How the verdict works</h2></div>
+    <section class="block how" id="how">
+      <div class="sec-head"><h2>Method</h2></div>
       <div class="how-grid">
-        <div><h3>1. Measure</h3><p>Ping and jitter from 20 quick requests. Download and upload over 4 parallel streams for 8 seconds each, ignoring the TCP warm-up. Ping is measured again while the line is busy.</p></div>
-        <div><h3>2. Compare</h3><p>Real 5G should reach about 100 Mbps down, 20 Mbps up, 30 ms ping and 15 ms jitter. Below 40 Mbps is 4G territory, whatever the icon says.</p></div>
-        <div><h3>3. Judge</h3><p>You tell us what your phone shows. We compare the label with the measured class and call it real, partial or fake.</p></div>
+        <div><span class="n">i.</span><h3>Measure</h3><p>20 pings for latency and jitter. Download and upload over 4 parallel streams for 8 seconds each, skipping the TCP warm-up. Then ping again while the line is loaded.</p></div>
+        <div><span class="n">ii.</span><h3>Compare</h3><p>Real 5G should land near 100 Mbps down, 20 up, 30 ms ping and 15 ms jitter. Under 40 Mbps is 4G territory, whatever the icon says.</p></div>
+        <div><span class="n">iii.</span><h3>Judge</h3><p>You tell us what the phone shows. We compare that label with the measured class and call it real, partial or fake.</p></div>
       </div>
-      <h3>Honest limits</h3>
+      <h3 class="limits-h">Where this can be wrong</h3>
       <ul class="limits">
-        <li>A web page cannot read your radio type, so the 5G label comes from you.</li>
-        <li>The test measures the path from your phone to this server. A far-away server lowers speed and raises ping.</li>
-        <li>Run it a few times at different spots and times. Tower load changes everything.</li>
-        <li>Some phones and plans cap speed on purpose. A low result can be your plan, not your signal.</li>
+        <li>A web page cannot read your radio type, so the 5G label is yours.</li>
+        <li>It measures the path to this server. A far server means lower speed and higher ping.</li>
+        <li>Run it a few times in different spots and at different hours. Tower load changes everything.</li>
+        <li>Some plans throttle on purpose. A slow result can be the plan, not the signal.</li>
       </ul>
     </section>
   </main>
 
   <footer class="foot">
-    <span>Zero5G - built for Tech Utsav by Manan Bharti</span>
-    <span class="muted">No accounts. No tracking. Results stay on your device.</span>
+    <span>Zero5G. Built for Tech Utsav by Manan Bharti.</span>
+    <span class="muted">No accounts, no tracking. Results never leave your device.</span>
   </footer>
 </body>
 </html>

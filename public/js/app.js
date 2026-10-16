@@ -6,8 +6,6 @@ import { loadHistory, saveRun, clearHistory, getPref, setPref } from './history.
 import { summaryText, renderCard, canvasToBlob } from './share.js';
 
 const $ = (id) => document.getElementById(id);
-const GAUGE_LEN = 628.32;
-const SCORE_LEN = 326.73;
 
 const el = {
   start: $('start'), stop: $('stop'), quick: $('quick'), hint: $('hint'), status: $('status'),
@@ -30,7 +28,7 @@ if (!CLAIMS[claim]) claim = '5g';
 let controller = null;
 let last = null; // {result, judgement}
 let chartSeries = [];
-let chartColor = '#2cff9a';
+let chartColor = '#16140f';
 
 /* ---------- claim chips ---------- */
 const chips = [...document.querySelectorAll('.chip')];
@@ -56,7 +54,7 @@ setClaim(claim);
 
 /* ---------- gauge ---------- */
 function setGauge(frac) {
-  el.gFill.setAttribute('stroke-dashoffset', String(GAUGE_LEN * (1 - Math.min(1, Math.max(0, frac)))));
+  el.gFill.style.width = (Math.min(1, Math.max(0, frac)) * 100).toFixed(1) + '%';
 }
 const mbpsFrac = (v) => Math.min(1, Math.log10(1 + v) / 3); // 0..1000 Mbps on a log scale
 function showValue(phase, v) {
@@ -73,7 +71,7 @@ const PHASE_LABEL = { ping: 'Latency', download: 'Download', upload: 'Upload', d
 function setPhase(p) { el.gPhase.textContent = PHASE_LABEL[p] || p; }
 
 function resetTiles() {
-  Object.values(tiles).forEach(([t, v]) => { t.className = 'tile'; v.textContent = '-'; });
+  Object.values(tiles).forEach(([t, v]) => { t.className = 'cell tile'; v.textContent = '-'; });
 }
 
 /* ---------- running a test ---------- */
@@ -109,14 +107,14 @@ async function start() {
         setStatus(labels[ev.phase]);
         el.chartLabel.textContent = ev.phase === 'ping' ? 'Measuring latency' : ev.phase === 'download' ? 'Download speed' : 'Upload speed';
         if (ev.phase !== 'ping') {
-          chartSeries = []; chartColor = ev.phase === 'download' ? '#2cff9a' : '#29c6ff';
+          chartSeries = []; chartColor = ev.phase === 'download' ? '#16140f' : '#e5381b';
           drawChart(el.chart, chartSeries, { color: chartColor });
         }
         setGauge(0);
       } else if (ev.type === 'live') {
         live[ev.phase] = ev.value;
         showValue(ev.phase, ev.value);
-        setGauge(ev.phase === 'ping' ? Math.min(1, ev.value / 200) : mbpsFrac(ev.value));
+        setGauge(ev.phase === 'ping' ? 0 : mbpsFrac(ev.value));
         const base = order.indexOf(ev.phase) / 3;
         el.pBar.style.width = ((base + ev.progress / 3) * 100).toFixed(1) + '%';
         if (ev.samples) {
@@ -155,10 +153,10 @@ function finish(result) {
   setPhase('done'); showValue('download', result.down); setGauge(mbpsFrac(result.down));
   setStatus('Done. Scroll down for the verdict.');
   el.chartLabel.textContent = 'Upload speed (last phase)';
-  for (const [k, rating] of Object.entries(j.ratings)) tiles[k][0].className = 'tile ' + (rating === 'na' ? '' : rating);
+  for (const [k, rating] of Object.entries(j.ratings)) tiles[k][0].className = 'cell tile ' + (rating === 'na' ? '' : rating);
   renderVerdict(result, j);
   saveRun({ at: result.at, down: result.down, up: result.up, ping: result.ping, jitter: result.jitter, loadedPing: result.loadedPing, verdict: j.verdict, score: j.score, claim, tier: j.tier.label });
-  renderHistory();
+  renderHistory(); $('runNo').textContent = String(loadHistory().length + 1);
   requestAnimationFrame(() => el.verdict.scrollIntoView({ behavior: 'smooth', block: 'center' }));
 }
 
@@ -170,8 +168,8 @@ function renderVerdict(r, j) {
   el.vHead.textContent = j.headline;
   el.vDetail.textContent = j.detail;
   el.sNum.textContent = String(j.score);
-  el.sFill.setAttribute('stroke-dashoffset', String(SCORE_LEN));
-  requestAnimationFrame(() => el.sFill.setAttribute('stroke-dashoffset', String(SCORE_LEN * (1 - j.score / 100))));
+  el.sFill.style.width = '0%';
+  requestAnimationFrame(() => { el.sFill.style.width = j.score + '%'; });
   el.vReasons.replaceChildren(...j.reasons.map((t) => Object.assign(document.createElement('li'), { textContent: t })));
   const rows = [
     ['Download', r.down / TARGETS.down, fmtMbps(r.down), j.ratings.down],
@@ -271,4 +269,4 @@ el.again.addEventListener('click', () => { document.getElementById('test').scrol
 window.addEventListener('resize', () => drawChart(el.chart, chartSeries, { color: chartColor }));
 window.addEventListener('online', renderConn); window.addEventListener('offline', renderConn);
 if (new URLSearchParams(location.search).get('quick') === '1') el.quick.checked = true;
-renderConn(); renderHistory(); drawChart(el.chart, []);
+renderConn(); renderHistory(); $('runNo').textContent = String(loadHistory().length + 1); drawChart(el.chart, []);

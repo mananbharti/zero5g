@@ -97,3 +97,11 @@ test('security headers present', async () => {
   assert.match(r.headers.get('content-security-policy'), /default-src 'self'/);
   assert.equal(r.headers.get('x-content-type-options'), 'nosniff');
 });
+
+test('bundled fonts are served as woff2', async () => {
+  for (const f of ['instrument-serif-latin-400-normal', 'ibm-plex-mono-latin-400-normal', 'hanken-grotesk-latin-400-normal']) {
+    const r = await fetch(base + '/fonts/' + f + '.woff2');
+    assert.equal(r.status, 200, f);
+    assert.equal(r.headers.get('content-type'), 'font/woff2');
+  }
+});

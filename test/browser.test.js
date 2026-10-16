@@ -42,6 +42,16 @@ await t('page loads with no console errors or CSP violations', async () => {
   await page.close();
 });
 
+await t('custom fonts actually load', async () => {
+  const page = await newPage();
+  await page.goto(base, { waitUntil: 'networkidle0' });
+  const ok = await page.evaluate(async () => { await document.fonts.ready; return ['Instrument Serif', 'Plex Mono', 'Hanken'].map((f) => document.fonts.check('16px "' + f + '"')); });
+  assert.deepEqual(ok, [true, true, true]);
+  const fam = await page.$eval('h1', (h) => getComputedStyle(h).fontFamily);
+  assert.match(fam, /Instrument Serif/);
+  await page.close();
+});
+
 await t('claim chips: click, keyboard arrows, persistence', async () => {
   const page = await newPage();
   await page.goto(base, { waitUntil: 'networkidle0' });

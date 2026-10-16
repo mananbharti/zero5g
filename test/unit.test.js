@@ -143,3 +143,9 @@ test('toSeries yields a per-window Mbps series', () => {
   assert.ok(out.length > 10);
   assert.ok(Math.abs(out[out.length - 1].v - 10) < 0.01);
 });
+
+test('reasons stay readable for very fast links and tier names keep their case', () => {
+  const j = judge({ down: 4600, up: 3000, ping: 3, jitter: 1 }, '5g');
+  assert.match(j.reasons[0], /more than 46x/);
+  assert.match(j.detail, /5G\+ class/);
+});
